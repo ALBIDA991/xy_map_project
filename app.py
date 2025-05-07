@@ -28,6 +28,11 @@ def login():
         return "ログイン失敗"
     return render_template('login.html')
 
+@app.route('/init_db')
+def init_db():
+    seed_allowed_coords()
+    return "DB initialized"
+
 @app.route('/logout')
 def logout():
     session.clear()
