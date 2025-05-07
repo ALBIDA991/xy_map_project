@@ -47,33 +47,33 @@
   </style>
 </head>
 <body>
-  <h1>座標登録</h1>
+  <h1>座標登録(Register Coordinates)</h1>
   <form action="/logout" method="get" style="margin-bottom: 10px;">
     <button type="submit" style="background-color: #cc0000; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
       ログアウト
     </button>
   </form>
-  
+
   <div class="top-buttons">
-    <button onclick="showUserCoords()">取得済み座標を見る</button>
-    <button onclick="showAllowedCoords()">取得可能座標を見る</button>
+    <button onclick="showUserCoords()">取得済み座標を見る(Check Collected Coordinates)</button>
+    <button onclick="showAllowedCoords()">取得可能座標を見る(Check Available Coordinates)</button>
     <button onclick="toggleColor()">色分け切替</button>
   </div>
 
   <div class="legend" id="legend">
-    <div class="legend-item"><div class="legend-color" style="background:#3366ff;"></div>レベル1</div>
-    <div class="legend-item"><div class="legend-color" style="background:#33cc33;"></div>レベル2</div>
-    <div class="legend-item"><div class="legend-color" style="background:#cccc00;"></div>レベル3</div>
-    <div class="legend-item"><div class="legend-color" style="background:#ff9933;"></div>レベル4</div>
-    <div class="legend-item"><div class="legend-color" style="background:#ff3333;"></div>レベル5</div>
-    <div class="legend-item"><div class="legend-color" style="background:#9933cc;"></div>レベル6</div>
-    <div class="legend-item"><div class="legend-color" style="background:#ffffff;"></div>レベル7</div>
-    <div class="legend-item"><div class="legend-color" style="background:red;"></div>取得済み</div>
+    <div class="legend-item"><div class="legend-color" style="background:#3366ff;"></div>Lv.1</div>
+    <div class="legend-item"><div class="legend-color" style="background:#33cc33;"></div>Lv.2</div>
+    <div class="legend-item"><div class="legend-color" style="background:#cccc00;"></div>Lv.3</div>
+    <div class="legend-item"><div class="legend-color" style="background:#ff9933;"></div>Lv.4</div>
+    <div class="legend-item"><div class="legend-color" style="background:#896534;"></div>Lv.5</div>
+    <div class="legend-item"><div class="legend-color" style="background:#9933cc;"></div>Lv.6</div>
+    <div class="legend-item"><div class="legend-color" style="background:#ffffff;"></div>Lv.7</div>
+    <div class="legend-item"><div class="legend-color" style="background:red;"></div>取得済み(Collected)</div>
   </div>
 
   X: <input type="number" id="x" min="0" max="999">
   Y: <input type="number" id="y" min="0" max="999">
-  <button onclick="submitCoord()">登録</button>
+  <button onclick="submitCoord()">登録(Register)</button>
   <p id="result"></p>
   <canvas id="map" width="1000" height="1000"></canvas>
 
@@ -159,7 +159,7 @@
 
     function showUserCoords() {
       const text = userCoords.map(([x, y]) => `(${x}, ${y})`).join(', ');
-      alert("取得済み座標:\n" + (text || "なし"));
+      alert("取得済み座標(Collected Coordinates):\n" + (text || "なし(None)"));
     }
 
     function showAllowedCoords() {
@@ -174,7 +174,7 @@
       });
 
       const text = unregistered.map(([x, y, level]) => `(${x}, ${y}) - Lv.${level}`).join('\n');
-      alert("取得可能（未取得）座標（レベル順）:\n" + (text || "なし"));
+      alert("取得可能座標（Available Coordinates）:\n" + (text || "なし(None)"));
     }
 
 
