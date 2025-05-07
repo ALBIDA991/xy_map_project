@@ -1,6 +1,7 @@
 python310.zip
 .
-C:\xy_map_project
+..
+..\templates
 
 # Uncomment to run site.main() automatically
 import site
