@@ -56,6 +56,19 @@
     {% endfor %}
   </table>
 
+  <script>
+    function clearAllowedCoords() {
+      if (confirm("登録可能な座標リストをすべて削除しますか？")) {
+        fetch('/clear_allowed_coords')
+          .then(res => res.text())
+          .then(msg => {
+            alert(msg);
+            location.reload();
+          });
+      }
+    }
+    </script>
+
   <h2>ユーザー登録済み座標</h2>
   <table>
     <tr><th>X</th><th>Y</th><th>ユーザー名</th></tr>

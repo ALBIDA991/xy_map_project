@@ -28,6 +28,20 @@ def login():
         return "ログイン失敗"
     return render_template('login.html')
 
+@app.route('/clear_allowed_coords')
+@login_required
+def clear_allowed_coords():
+    if session.get('username') != 'admin':
+        return "許可されていません", 403
+
+    conn = sqlite3.connect('coords.db')
+    c = conn.cursor()
+    c.execute("DELETE FROM allowed_coords")
+    conn.commit()
+    conn.close()
+    return "すべての登録可能座標を削除しました"
+
+
 @app.route('/init_db')
 def init_db():
     seed_allowed_coords()
