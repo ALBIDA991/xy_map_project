@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head><title>CSVアップロード</title></head>
+<body>
+  <h1>CSVアップロード</h1>
+  <form action="/upload_csv" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".csv">
+    <input type="submit" value="アップロード">
+  </form>
+  <p><a href="/admin">← 管理画面に戻る</a></p>
+</body>
+</html>

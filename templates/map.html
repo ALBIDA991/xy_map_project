@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>XYマップ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+    }
+    h1 {
+      color: #ffffff;
+    }
+    input, button {
+      background-color: #333333;
+      color: #ffffff;
+      border: 1px solid #555555;
+      padding: 5px;
+      border-radius: 5px;
+      margin-right: 5px;
+    }
+    canvas {
+      background-color: #1e1e1e;
+      border: 1px solid #555555;
+      display: block;
+      margin-top: 10px;
+    }
+    .top-buttons {
+      margin-bottom: 10px;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      margin: 10px 0;
+    }
+    .legend-item {
+      margin-right: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      margin-right: 4px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>座標登録</h1>
+
+  <div class="top-buttons">
+    <button onclick="showUserCoords()">取得済み座標を見る</button>
+    <button onclick="showAllowedCoords()">取得可能座標を見る</button>
+    <button onclick="toggleColor()">色分け切替</button>
+  </div>
+
+  <div class="legend" id="legend">
+    <div class="legend-item"><div class="legend-color" style="background:#3366ff;"></div>レベル1</div>
+    <div class="legend-item"><div class="legend-color" style="background:#33cc33;"></div>レベル2</div>
+    <div class="legend-item"><div class="legend-color" style="background:#cccc00;"></div>レベル3</div>
+    <div class="legend-item"><div class="legend-color" style="background:#ff9933;"></div>レベル4</div>
+    <div class="legend-item"><div class="legend-color" style="background:#ff3333;"></div>レベル5</div>
+    <div class="legend-item"><div class="legend-color" style="background:#9933cc;"></div>レベル6</div>
+    <div class="legend-item"><div class="legend-color" style="background:#ffffff;"></div>レベル7</div>
+    <div class="legend-item"><div class="legend-color" style="background:red;"></div>取得済み</div>
+  </div>
+
+  X: <input type="number" id="x" min="0" max="999">
+  Y: <input type="number" id="y" min="0" max="999">
+  <button onclick="submitCoord()">登録</button>
+  <p id="result"></p>
+  <canvas id="map" width="1000" height="1000"></canvas>
+
+  <script>
+    const canvas = document.getElementById('map');
+    const ctx = canvas.getContext('2d');
+    const size = 1000;
+    let userCoords = [];
+    let allowedCoords = [];
+    let colorEnabled = true;
+
+    const levelColorMap = {
+      1: '#3366ff',
+      2: '#33cc33',
+      3: '#cccc00',
+      4: '#ff9933',
+      5: '#ff3333',
+      6: '#9933cc',
+      7: '#ffffff'
+    };
+
+    function drawGrid() {
+      ctx.strokeStyle = '#444444';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= size; i++) {
+        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, size); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(size, i); ctx.stroke();
+      }
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '10px sans-serif';
+      for (let i = 0; i <= 1000; i += 100) {
+        ctx.fillText(i, i + 2, size - 2);
+        ctx.fillText(i, 2, size - i - 2);
+      }
+    }
+
+    function drawSquares() {
+  ctx.clearRect(0, 0, size, size);
+  drawGrid();
+  const userSet = new Set(userCoords.map(([x, y]) => `${x},${y}`));
+
+  allowedCoords.forEach(([x, y, level]) => {
+    const key = `${x},${y}`;
+    const screenX = x;
+    const screenY = size - y - 1;
+
+    if (userSet.has(key)) {
+      // 🔴 取得済み → 9×9 赤で塗る
+      ctx.fillStyle = 'red';
+      ctx.fillRect(screenX - 4, screenY - 4, 9, 9);
+    } else {
+      // 🔵 未取得 → 1×1でレベル色
+      ctx.fillStyle = colorEnabled ? (levelColorMap[level] || '#00bfff') : '#00bfff';
+      ctx.fillRect(screenX - 4, screenY - 4, 9, 9);
+    }
+  });
+}
+
+
+    function toggleColor() {
+      colorEnabled = !colorEnabled;
+      drawSquares();
+    }
+
+    function submitCoord() {
+      const x = parseInt(document.getElementById('x').value);
+      const y = parseInt(document.getElementById('y').value);
+      if (isNaN(x) || isNaN(y)) {
+        document.getElementById('result').innerText = "XとYを入力してください";
+        return;
+      }
+      fetch('/add_coord', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({x, y})
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('result').innerText = data.message;
+        if (data.status === "success") location.reload();
+      });
+    }
+
+    function showUserCoords() {
+      const text = userCoords.map(([x, y]) => `(${x}, ${y})`).join(', ');
+      alert("取得済み座標:\n" + (text || "なし"));
+    }
+
+    function showAllowedCoords() {
+      const userSet = new Set(userCoords.map(([x, y]) => `${x},${y}`));
+      const unregistered = allowedCoords.filter(([x, y, level]) => !userSet.has(`${x},${y}`));
+
+      // レベル → X → Y の昇順で並べ替え
+      unregistered.sort((a, b) => {
+        if (a[2] !== b[2]) return a[2] - b[2];
+        if (a[0] !== b[0]) return a[0] - b[0];
+        return a[1] - b[1];
+      });
+
+      const text = unregistered.map(([x, y, level]) => `(${x}, ${y}) - Lv.${level}`).join('\n');
+      alert("取得可能（未取得）座標（レベル順）:\n" + (text || "なし"));
+    }
+
+
+    async function init() {
+      const [userRes, allowedRes] = await Promise.all([
+        fetch('/get_coords'),
+        fetch('/get_allowed_coords')
+      ]);
+      userCoords = await userRes.json();
+      allowedCoords = await allowedRes.json();
+      drawSquares();
+    }
+
+    init();
+  </script>
+</body>
+</html>

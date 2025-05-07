@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>管理画面</title>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f5f5f5;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #eee;
+    }
+    button {
+      padding: 6px 12px;
+      background-color: #cc0000;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background-color: #a00000;
+    }
+  </style>
+</head>
+<body>
+  <h1>管理画面</h1>
+
+  <h2>CSVアップロード</h2>
+  <form action="/upload_csv" method="post" enctype="multipart/form-data">
+    CSVファイル: <input type="file" name="file" accept=".csv">
+    <input type="submit" value="アップロード">
+  </form>
+
+  <h2>登録可能座標リスト</h2>
+  <button onclick="dedupe()">重複削除（9×9マス内）</button>
+  <table>
+    <tr><th>X</th><th>Y</th><th>レベル</th></tr>
+    {% for x, y, level in allowed_coords %}
+    <tr><td>{{ x }}</td><td>{{ y }}</td><td>{{ level }}</td></tr>
+    {% endfor %}
+  </table>
+
+  <h2>ユーザー登録済み座標</h2>
+  <table>
+    <tr><th>X</th><th>Y</th><th>ユーザー名</th></tr>
+    {% for x, y, username in user_coords %}
+    <tr><td>{{ x }}</td><td>{{ y }}</td><td>{{ username }}</td></tr>
+    {% endfor %}
+  </table>
+
+  <p><a href="/">マップに戻る</a></p>
+
+  <script>
+    function dedupe() {
+      if (confirm("9×9マス内の重複座標を削除します。実行しますか？")) {
+        fetch('/dedupe_allowed')
+          .then(res => res.text())
+          .then(msg => {
+            alert(msg);
+            location.reload();
+          });
+      }
+    }
+  </script>
+</body>
+</html>
