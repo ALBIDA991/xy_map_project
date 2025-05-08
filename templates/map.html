@@ -50,7 +50,7 @@
   <h1>座標登録(Register Coordinates)</h1>
   <form action="/logout" method="get" style="margin-bottom: 10px;">
     <button type="submit" style="background-color: #cc0000; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
-      ログアウト
+      ログアウト(Logout)
     </button>
   </form>
 
@@ -158,9 +158,33 @@
     }
 
     function showUserCoords() {
-      const text = userCoords.map(([x, y]) => `(${x}, ${y})`).join(', ');
-      alert("取得済み座標(Collected Coordinates):\n" + (text || "なし(None)"));
+      const text = userCoords.map(([x, y]) => `(${x}, ${y})`).join('<br>');
+      const win = window.open('', 'ユーザー座標', 'width=600,height=600');
+
+      win.document.write(`
+        <html>
+          <head>
+            <title>取得済み座標</title>
+            <style>
+              body {
+                font-family: sans-serif;
+                padding: 10px;
+                background-color: #f5f5f5;
+                color: #333;
+              }
+              h2 {
+                margin-top: 0;
+              }
+            </style>
+          </head>
+          <body>
+            <h2>取得済み座標 (Collected Coordinates)</h2>
+            ${text || "なし (None)"}
+          </body>
+        </html>
+      `);
     }
+
 
     function showAllowedCoords() {
       const userSet = new Set(userCoords.map(([x, y]) => `${x},${y}`));

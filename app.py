@@ -146,6 +146,42 @@ def upload_csv():
         return f"{inserted}件の座標を登録しました（{skipped}件スキップ）"
     return render_template('upload.html')
 
+
+@app.route('/upload_user_csv', methods=['GET', 'POST'])
+@login_required
+def upload_user_csv():
+    if session.get('username') != 'admin':
+        return "許可されていません", 403
+
+    if request.method == 'POST':
+        file = request.files['file']
+        if not file or not file.filename.endswith('.csv'):
+            return "CSVファイルのみ対応しています"
+
+        stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)
+        reader = csv.DictReader(stream)
+
+        conn = sqlite3.connect('coords.db')
+        c = conn.cursor()
+
+        inserted = 0
+        skipped = 0
+        for row in reader:
+            try:
+                x = int(row['x'])
+                y = int(row['y'])
+                username = row.get('username', 'unknown')
+                c.execute("INSERT OR IGNORE INTO user_coords (x, y, username) VALUES (?, ?, ?)", (x, y, username))
+                inserted += 1
+            except Exception:
+                skipped += 1
+        conn.commit()
+        conn.close()
+        return f"{inserted}件登録、{skipped}件スキップしました"
+    
+    return render_template('upload_user.html')
+
+
 @app.route('/dedupe_allowed')
 @login_required
 def dedupe_allowed():
