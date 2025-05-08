@@ -197,19 +197,24 @@
         return a[1] - b[1];
       });
 
-      const text = unregistered.map(([x, y, level]) => `(${x}, ${y}) - Lv.${level}`).join('\n');
-      alert("取得可能座標（Available Coordinates）:\n" + (text || "なし(None)"));
-    }
+      const text = unregistered.map(([x, y, level]) => `(${x}, ${y}) - Lv.${level}`).join('<br>');
 
-
-    async function init() {
-      const [userRes, allowedRes] = await Promise.all([
-        fetch('/get_coords'),
-        fetch('/get_allowed_coords')
-      ]);
-      userCoords = await userRes.json();
-      allowedCoords = await allowedRes.json();
-      drawSquares();
+      const win = window.open('', 'Available Coordinates', 'width=600,height=600,scrollbars=yes');
+      win.document.write(`
+        <html>
+          <head>
+            <title>取得可能座標</title>
+            <style>
+              body { font-family: sans-serif; padding: 10px; background-color: #f5f5f5; color: #333; }
+              h2 { margin-top: 0; }
+            </style>
+          </head>
+          <body>
+            <h2>取得可能座標 (Available Coordinates)</h2>
+            ${text || "なし (None)"}
+          </body>
+        </html>
+      `);
     }
 
     init();
