@@ -217,6 +217,17 @@
       `);
     }
 
+
+    async function init() {
+      const [userRes, allowedRes] = await Promise.all([
+        fetch('/get_coords'),
+        fetch('/get_allowed_coords')
+      ]);
+      userCoords = await userRes.json();
+      allowedCoords = await allowedRes.json();
+      drawSquares();
+    }
+
     init();
   </script>
 </body>
