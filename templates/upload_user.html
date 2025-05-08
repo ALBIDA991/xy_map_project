@@ -1,12 +1,73 @@
 <!DOCTYPE html>
 <html>
-<head><title>CSVアップロード</title></head>
+<head>
+  <title>ユーザー座標CSVアップロード</title>
+  <meta charset="utf-8">
+</head>
 <body>
-  <h1>CSVアップロード</h1>
-  <form action="/upload_csv" method="post" enctype="multipart/form-data">
+  <h1>ユーザー座標CSVアップロード</h1>
+
+  <form action="/upload_user_csv" method="post" enctype="multipart/form-data">
+    CSVファイルを選択（列: x, y, username）:
     <input type="file" name="file" accept=".csv">
-    <input type="submit" value="アップロード">
+    <input type="submit" value="アップロード（サーバ処理）">
   </form>
-  <p><a href="/admin">← 管理画面に戻る</a></p>
+
+  <hr>
+
+  <h2>CSVでクライアント側から即時登録（/add_coord 経由）</h2>
+  <input type="file" id="csvFile" accept=".csv">
+  <button onclick="uploadCsv()">クライアント登録</button>
+
+  <p><a href="/admin">管理画面に戻る</a></p>
+
+  <script>
+    function uploadCsv() {
+      const fileInput = document.getElementById('csvFile');
+      const file = fileInput.files[0];
+      if (!file) {
+        alert("CSVファイルを選択してください");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async function(event) {
+        const lines = event.target.result.split('\n');
+        let success = 0, fail = 0;
+
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+
+          const [xStr, yStr] = line.split(',');
+          const x = parseInt(xStr);
+          const y = parseInt(yStr);
+
+          if (isNaN(x) || isNaN(y)) {
+            fail++;
+            continue;
+          }
+
+          try {
+            const res = await fetch('/add_coord', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({x, y})
+            });
+            const result = await res.json();
+            if (result.status === 'success') success++;
+            else fail++;
+          } catch {
+            fail++;
+          }
+        }
+
+        alert(`登録完了: 成功 ${success} 件 / 失敗 ${fail} 件`);
+        location.reload();
+      };
+
+      reader.readAsText(file);
+    }
+  </script>
 </body>
 </html>
