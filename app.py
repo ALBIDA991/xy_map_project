@@ -64,27 +64,16 @@ def add_coord():
     data = request.json
     x, y = data.get('x'), data.get('y')
     user = session['username']
-
-    # conn = sqlite3.connect('coords.db')
-    conn = sqlite3.connect('/tmp/coords.db')
+    conn = get_db_connection()
     c = conn.cursor()
-
-    # ±5以内の許可座標をチェック
-    c.execute("""
-        SELECT 1 FROM allowed_coords
-        WHERE ABS(x - ?) <= 5 AND ABS(y - ?) <= 5
-        LIMIT 1
-    """, (x, y))
+    c.execute("SELECT 1 FROM allowed_coords WHERE x=? AND y=?", (x, y))
     if not c.fetchone():
         conn.close()
-        return jsonify({"status": "error", "message": "この座標は登録できません（±5以内に許可座標がありません）。"})
-
-    # 登録済みチェック（ぴったり一致のみNG）
+        return jsonify({"status": "error", "message": "この座標は登録できません。"})
     c.execute("SELECT 1 FROM user_coords WHERE x=? AND y=?", (x, y))
     if c.fetchone():
         conn.close()
         return jsonify({"status": "error", "message": "この座標はすでに登録されています。"})
-
     c.execute("INSERT INTO user_coords (x, y, username) VALUES (?, ?, ?)", (x, y, user))
     conn.commit()
     conn.close()
