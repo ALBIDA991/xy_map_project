@@ -144,7 +144,7 @@ def upload_user_csv():
         stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)
         reader = csv.DictReader(stream)
 
-        conn = sqlite3.connect('coords.db')
+        conn = get_db_connection()
         c = conn.cursor()
 
         inserted = 0
