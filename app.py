@@ -123,7 +123,7 @@ def upload_csv():
                     inserted += 1
                 else:
                     skipped += 1
-            except:
+            except:image.png
                 skipped += 1
         conn.commit()
         conn.close()
